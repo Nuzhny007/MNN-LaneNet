@@ -12,8 +12,8 @@
 
 #include <opencv2/opencv.hpp>
 
-#include <Interpreter.hpp>
-#include <Tensor.hpp>
+#include <MNN/Interpreter.hpp>
+#include <MNN/Tensor.hpp>
 #include "common/config_parse_utils/config_parser.h"
 #include "postprocess/dbscan.hpp"
 

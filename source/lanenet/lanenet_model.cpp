@@ -6,12 +6,13 @@
 
 #include "lanenet_model.h"
 
+#include <numeric>
 #include <omp.h>
 
 #include <glog/logging.h>
 #include <boost/lexical_cast.hpp>
 
-#include <AutoTime.hpp>
+#include <MNN/AutoTime.hpp>
 #include "postprocess/dbscan.hpp"
 
 namespace lanenet {
@@ -150,7 +151,7 @@ void LaneNet::detect(const cv::Mat &input_image, cv::Mat &binary_seg_result, cv:
         AUTOTIME
         auto input_tensor_user_data = input_tensor_user.host<float>();
         auto input_tensor_user_size = input_tensor_user.size();
-        ::mempcpy(input_tensor_user_data, input_image_copy.data, input_tensor_user_size);
+        memcpy(input_tensor_user_data, input_image_copy.data, input_tensor_user_size);
 
         _m_input_tensor_host->copyFromHostTensor(&input_tensor_user);
         _m_lanenet_model->runSession(_m_lanenet_session);
@@ -306,7 +307,7 @@ void LaneNet::visualize_instance_segmentation_result(
     };
 
     omp_set_num_threads(4);
-    for (ulong class_id = 0; class_id < cluster_ret.size(); ++class_id) {
+    for (size_t class_id = 0; class_id < cluster_ret.size(); ++class_id) {
         auto class_color = color_map[class_id];
         #pragma omp parallel for
         for (auto index = 0; index < cluster_ret[class_id].size(); ++index) {
@@ -399,7 +400,7 @@ void LaneNet::normalize_sample_features(const std::vector<DBSCAMSample> &input_s
     std::vector<DBSCAMSample> input_samples_copy = input_samples;
     for (auto& sample : input_samples_copy) {
         auto feature = sample.get_feature_vector();
-        for (ulong index = 0; index < feature.size(); ++index) {
+        for (size_t index = 0; index < feature.size(); ++index) {
             feature[index] = (feature[index] - mean_feature_vector[index]) / stddev_feature_vector[index];
         }
         sample.set_feature_vector(feature);
@@ -432,7 +433,7 @@ void LaneNet::simultaneously_random_shuffle(std::vector<T1> src1, std::vector<T2
     std::vector<T2> src2_copy(src2);
 
     // random two source input vector via random shuffled index vector
-    for (ulong i = 0; i < indexes.size(); ++i) {
+    for (size_t i = 0; i < indexes.size(); ++i) {
         src1[i] = src1_copy[indexes[i]];
         src2[i] = src2_copy[indexes[i]];
     }

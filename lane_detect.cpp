@@ -19,7 +19,7 @@ using common::config_parse_utils::ConfigParser;
 int main(int argc, char **argv) {
 
     google::InitGoogleLogging(argv[0]);
-    google::InstallFailureSignalHandler();
+    //google::InstallFailureSignalHandler();
     google::SetStderrLogging(google::GLOG_INFO);
 
     if (argc != 3) {

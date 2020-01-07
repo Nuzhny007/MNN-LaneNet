@@ -19,6 +19,7 @@ The main network architecture is as follows:
 ## Installation
 This project has been built and tested on Ubuntu16.04. Tests on other
 platform will be done recently.
+Compilen on Windows
 
 #### Common Preparation
 

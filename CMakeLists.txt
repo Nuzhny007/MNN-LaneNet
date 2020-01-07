@@ -1,6 +1,8 @@
 # Set cmake minium version
 cmake_minimum_required(VERSION 3.5)
 
+project(MNN_LANENET)
+
 # Set project name
 set(PROJECT_NAME MNN_LANENET)
 
@@ -23,7 +25,17 @@ set(PROJECT.Source_DIR
 find_package(OpenCV REQUIRED)
 find_package(Boost REQUIRED)
 find_package(OpenMP REQUIRED)
-find_package(Glog REQUIRED)
+
+find_package(glog REQUIRED CONFIG NAMES google-glog glog)
+if (NOT TARGET glog::glog)
+	find_library(LIB_glog NAMES glog)
+else()
+	set(LIB_glog glog::glog)
+endif (NOT TARGET glog::glog)
+
+set(CMAKE_INCLUDE_CURRENT_DIR ON)
+
+set(MNN "mnn" CACHE PATH "Path to the MNN library")
 
 # Set compile environment variable
 if(USE_CPP11)
@@ -40,20 +52,15 @@ if (OPENMP_FOUND)
 endif()
 
 # Set build type
-set(CMAKE_BUILD_TYPE Release)
+#set(CMAKE_BUILD_TYPE Release)
 #set(CMAKE_BUILD_TYPE Debug)
 
 # Set include files
-include_directories(${CMAKE_CURRENT_LIST_DIR}/MNN/include)
 include_directories(${PROJECT.Source_DIR})
+include_directories(${Boost_INCLUDE_DIRS})
+include_directories(${MNN}/include)
 
-# Set lib
-add_library( MNN SHARED IMPORTED )
-set_target_properties(
-    MNN
-    PROPERTIES IMPORTED_LOCATION
-    ${CMAKE_CURRENT_LIST_DIR}/MNN/lib/libMNN.so
-)
+link_directories(${MNN}/lib)
 
 # Set source file
 foreach(dir_path ${PROJECT.Source_DIR})
@@ -64,7 +71,7 @@ endforeach()
 add_executable(lanenet_detector.out ./lane_detect.cpp ${PROJECT_SRC_CODE})
 target_link_libraries(
     lanenet_detector.out
-    MNN
     ${OpenCV_LIBS}
-    /usr/local/lib/libglog.so
+    ${LIB_glog}
+    MNN
 )
